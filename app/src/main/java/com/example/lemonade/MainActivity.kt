@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
+import java.sql.SQLException
 
 class MainActivity : AppCompatActivity() {
 
@@ -66,11 +67,12 @@ class MainActivity : AppCompatActivity() {
         lemonImage = findViewById(R.id.image_lemon_state)
         setViewElements()
         lemonImage!!.setOnClickListener {
-            // TODO: call the method that handles the state when the image is clicked
+            clickLemonImage()
+            setViewElements()
         }
         lemonImage!!.setOnLongClickListener {
             // TODO: replace 'false' with a call to the function that shows the squeeze count
-            false
+            showSnackbar()
         }
     }
 
@@ -111,6 +113,19 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: lastly, before the function terminates we need to set the view elements so that the
         //  UI can reflect the correct state
+        if (lemonadeState == SELECT) {
+            lemonadeState = SQUEEZE
+            lemonSize = this.lemonTree.pick();
+            squeezeCount = 0;
+        } else if (lemonadeState == SQUEEZE && ((++this.squeezeCount) == this.lemonSize)) {
+            lemonadeState = DRINK
+            lemonSize = -1
+            squeezeCount = -1
+        } else if (lemonadeState == DRINK) {
+            lemonadeState = RESTART
+        } else if (lemonadeState == RESTART) {
+            lemonadeState = SELECT
+        }
     }
 
     /**
@@ -126,6 +141,20 @@ class MainActivity : AppCompatActivity() {
         // TODO: Additionally, for each state, the lemonImage should be set to the corresponding
         //  drawable from the drawable resources. The drawables have the same names as the strings
         //  but remember that they are drawables, not strings.
+
+        if (lemonadeState == SELECT) {
+            textAction.setText(R.string.lemon_select)
+            this.lemonImage?.setImageResource(R.drawable.lemon_tree)
+        } else if (lemonadeState == SQUEEZE) {
+            textAction.setText(R.string.lemon_squeeze)
+            this.lemonImage?.setImageResource(R.drawable.lemon_squeeze)
+        } else if (lemonadeState == DRINK) {
+            textAction.setText(R.string.lemon_drink)
+            this.lemonImage?.setImageResource(R.drawable.lemon_drink)
+        } else if (lemonadeState == RESTART) {
+            textAction.setText(R.string.lemon_empty_glass)
+            this.lemonImage?.setImageResource(R.drawable.lemon_restart)
+        }
     }
 
     /**
